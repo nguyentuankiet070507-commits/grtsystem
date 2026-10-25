@@ -23,3 +23,4 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 ```
 
 Then replace the local store adapter (`src/lib/store.ts`) with typed Supabase queries and a scoped `floor_seats` subscription for the current café. The UI/model layer deliberately does not depend on whether updates are `manual` or `camera_ai`.
+# grtsystem
