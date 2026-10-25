@@ -1,0 +1,6 @@
+import { Cafe, SeatStatus } from './model'; import { initialCafes } from './seed';
+const key='grtsystem-cafes-v1';
+export function loadCafes():Cafe[]{ if(typeof window==='undefined') return initialCafes; try{return JSON.parse(localStorage.getItem(key)||'null')||initialCafes}catch{return initialCafes} }
+export function saveCafes(c:Cafe[]){localStorage.setItem(key,JSON.stringify(c)); window.dispatchEvent(new Event('grt-update'));}
+/** Only valid operational transitions are allowed: available→occupied/unavailable and occupied/unavailable→available. */
+export function updateSeats(cafes:Cafe[],cafeId:string,ids:string[],status:SeatStatus):Cafe[]{const now=new Date().toISOString(); return cafes.map(c=>{if(c.id!==cafeId)return c;const canTransition=(current:SeatStatus)=>(status==='occupied'&&current==='available')||(status==='unavailable'&&current==='available')||(status==='available'&&(current==='occupied'||current==='unavailable'));const changed=c.tables.some(t=>t.seats.some(s=>ids.includes(s.id)&&canTransition(s.status)));if(!changed)return c;return {...c,lastUpdated:now,tables:c.tables.map(t=>({...t,seats:t.seats.map(s=>ids.includes(s.id)&&canTransition(s.status)?{...s,status,occupiedSince:status==='occupied'?now:null,source:'manual' as const}:s)}))};});}
